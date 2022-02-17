@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
 //                    progressDialog.setProgress(0);
 //                    progressDialog.show();
 
+
                     Log.d("Demo", "Starting ....."+ message.getData().getDouble(DoHeavyWork.PROGRESS_KEY));
                     break;
                 case DoHeavyWork.STATUS_STOP:
