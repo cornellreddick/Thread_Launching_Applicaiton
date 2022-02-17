@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Launching Application</string>
+    <string name="generateBtnLabel">Generate</string>
+    <string name="seekBarLabel">Select Complexity</string>
+    <string name="numberOfTimeLabel">0 Times</string>
+    <string name="average">Average:</string>
+<!--    <string name="generateBtnLabel">Generate</string>-->
+</resources>
