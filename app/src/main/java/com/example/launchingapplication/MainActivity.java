@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
     Handler handler;
     ProgressDialog progressDialog;
-    TextView textView, avgTextView, pBar;
+    TextView textView, avgTextView, pBar, tvAvg;
     ListView listView;
     SeekBar seekBar;
     ProgressBar progressBar;
@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
         pBar = findViewById(R.id.textViewMax);
         seekBar = findViewById(R.id.seekBar);
         progressBar = findViewById(R.id.progressBarMax);
+        tvAvg = findViewById(R.id.textViewAverageLabel);
+        avgTextView = findViewById(R.id.textViewAvg);
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int n = 1;
@@ -68,6 +70,11 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                pBar.setVisibility(View.VISIBLE);
+                avgTextView.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
+                tvAvg.setVisibility(View.VISIBLE);
+
                 r = seekBar.getProgress();
                 progressBar.setProgress(r);
 
@@ -105,10 +112,11 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("Demo", "Starting .....");
                     break;
                 case DoHeavyWork.STATUS_STOP:
+                    button.setEnabled(true);
                     Log.d("Demo", "Stopping .....");
                     break;
                 case DoHeavyWork.STATUS_PROGRESS:
-
+                    //button.setEnabled(false);
                     arrayList.add(String.valueOf(message.getData().getDouble(DoHeavyWork.PROGRESS_KEY)));
 
                  double t = (double) message.getData().getDouble(DoHeavyWork.PROGRESS_KEY);
