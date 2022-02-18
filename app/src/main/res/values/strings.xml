@@ -4,5 +4,8 @@
     <string name="seekBarLabel">Select Complexity</string>
     <string name="numberOfTimeLabel">0 Times</string>
     <string name="average">Average:</string>
+    <string name="averageResults">0.0</string>
+    <string name="averageMax">0/0</string>
+
 <!--    <string name="generateBtnLabel">Generate</string>-->
 </resources>

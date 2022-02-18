@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,58 +25,76 @@ public class MainActivity extends AppCompatActivity {
 
     Handler handler;
     ProgressDialog progressDialog;
-    TextView textView;
+    TextView textView, avgTextView, pBar;
     ListView listView;
     SeekBar seekBar;
+    ProgressBar progressBar;
+    int r;
     Button button;
     ExecutorService executorService;
     ArrayAdapter arrayAdapter;
     HeavyWork heavyWork = new HeavyWork();
-
+    private  int proStatBar = 1;
     ArrayList<String> arrayList = new ArrayList<>();
+    int num;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        executorService = Executors.newFixedThreadPool(10);
+
 
         textView = findViewById(R.id.numTimesTextView);
+        pBar = findViewById(R.id.textViewMax);
         seekBar = findViewById(R.id.seekBar);
+        progressBar = findViewById(R.id.progressBarMax);
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int n = 1;
             @Override
             public void onProgressChanged(SeekBar seekBar, int number, boolean b) {
-                textView.setText(number +" " + "Times");
+               textView.setText(number + " Times");
             }
-
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
+        }
         });
-
-        ArrayList list = new ArrayList();
-        findViewById(R.id.generateButton).setOnClickListener(new View.OnClickListener() {
+        button = (Button) findViewById(R.id.generateButton);
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                executorService.execute(new DoHeavyWork());
+                r = seekBar.getProgress();
+                progressBar.setProgress(r);
+
+                if (r !=0){
+                    executorService = Executors.newFixedThreadPool(r);
+                    executorService.execute(new DoHeavyWork());
+                }else{
+                    Toast.makeText(getApplicationContext(), "Move the seek bar!!", Toast.LENGTH_LONG).show();
+                }
+
+              progressBar.setMax(r);
+
+                int count = r;
+              if (proStatBar <= count ) {
+                  pBar.setText(proStatBar +"/"+ r);
+                  progressBar.setProgress(proStatBar);
+                  proStatBar += 1;
+                  count++;
+              }else{
+                  Toast.makeText(getApplicationContext(), "Completed!!", Toast.LENGTH_LONG).show();
+                  button.setEnabled(false);
+                  seekBar.setEnabled(false);
+              }
+
             }
         });
 
-
-
-//        progressDialog = new ProgressDialog(this);
-//        progressDialog.setMessage("Update Progress");
-//        progressDialog.setMax(100);
-//        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-//        progressDialog.setCancelable(false);
 
 
     handler = new Handler(new Handler.Callback() {
@@ -83,24 +102,27 @@ public class MainActivity extends AppCompatActivity {
         public boolean handleMessage(@NonNull Message message) {
             switch (message.what){
                 case DoHeavyWork.STATUS_START:
-//                    progressDialog.setProgress(0);
-//                    progressDialog.show();
-
-
-                    Log.d("Demo", "Starting ....."+ message.getData().getDouble(DoHeavyWork.PROGRESS_KEY));
+                    Log.d("Demo", "Starting .....");
                     break;
                 case DoHeavyWork.STATUS_STOP:
-                   // progressDialog.dismiss();
-                    Log.d("Demo", "Stopping ....."+ message.getData().getDouble(DoHeavyWork.PROGRESS_KEY));
+                    Log.d("Demo", "Stopping .....");
                     break;
                 case DoHeavyWork.STATUS_PROGRESS:
-                   // progressDialog.setProgress(message.getData().getInt(DoHeavyWork.PROGRESS_KEY));
+
                     arrayList.add(String.valueOf(message.getData().getDouble(DoHeavyWork.PROGRESS_KEY)));
-                    int result = arrayList.size();
-                    Log.d("Size", "handleMessage:" + result);
+
+                 double t = (double) message.getData().getDouble(DoHeavyWork.PROGRESS_KEY);
+                    ArrayList<Double> list = new ArrayList<>();
+                    list.add(t);
+                   double r = calculateAverage(list);
+
+                    TextView tv = findViewById(R.id.textViewAvg);
+                    tv.setText(String.valueOf(r));
+
                     Log.d("Demo", "Progress ....." + message.getData().getDouble(DoHeavyWork.PROGRESS_KEY));
                     break;
             }
+
 
             listView = findViewById(R.id.listiView);
             arrayAdapter = new ArrayAdapter<>(MainActivity.this , android.R.layout.simple_list_item_1, arrayList);
@@ -108,9 +130,8 @@ public class MainActivity extends AppCompatActivity {
 
             return false;
         }
-    });
 
-    new Thread(new DoHeavyWork()).start();
+    });
 
     }
 
@@ -121,14 +142,7 @@ public class MainActivity extends AppCompatActivity {
         static final String PROGRESS_KEY = "PROGRESS";
 
         @Override
-        public void run(){
-//            Message startMsg = new Message();
-//            startMsg.what = STATUS_START;
-//            Bundle start = new Bundle();
-//            start.putDouble(PROGRESS_KEY, HeavyWork.getNumber());
-//            startMsg.setData(start);
-//            handler.sendMessage(startMsg);
-//
+        public void run() {
 
             Message message = new Message();
             message.what = STATUS_PROGRESS;
@@ -136,39 +150,17 @@ public class MainActivity extends AppCompatActivity {
             progress.putDouble(PROGRESS_KEY, HeavyWork.getNumber());
             message.setData(progress);
             handler.sendMessage(message);
-
-
-
-//            Message stopMsg = new Message();
-//            message.what = STATUS_STOP;
-//            Bundle stop = new Bundle();
-//            stop.putDouble(PROGRESS_KEY, HeavyWork.getNumber());
-//            stopMsg.setData(stop);
-//            handler.sendMessage(stopMsg);
-
-//
-//           // Log.d("Demo", "Started Work");
-//            for (int i = 0; i < 100; i++) {
-//                for (int j = 0; j < 100000000; j++) {
-//                }
-//                Message message = new Message();
-//                message.what = i;
-//                message.obj = (Integer)i;
-//                handler.sendMessage(message);
-//
-//                Message message = new Message();
-//                message.what = STATUS_PROGRESS;
-//               // message.obj = (Integer)i;
-//                Bundle bundle = new Bundle();
-//                bundle.putInt(PROGRESS_KEY,(Integer)i );
-//                message.setData(bundle);
-//                handler.sendMessage(message);
-//            }
-//
-//            Message stopMessage = new Message();
-//            stopMessage.what = STATUS_STOP;
-//            handler.sendMessage(stopMessage);
         }
     }
 
+    private double calculateAverage(ArrayList <Double> marks) {
+        Double sum = 0.0;
+        if(!marks.isEmpty()) {
+            for (Double mark : marks) {
+                sum += mark;
+            }
+            return sum.doubleValue() / marks.size();
+        }
+        return sum;
+    }
 }
